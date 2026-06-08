@@ -1,0 +1,8 @@
+{
+  "name": "ZEcolis Mobile App",
+  "description": "Une application mobile-first pour l'envoi de colis et le voyage collaboratif, répliquant fidèlement le design ZEcolis.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
