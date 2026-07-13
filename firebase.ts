@@ -15,3 +15,9 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
+
+// 1) Préparer Google Sign-In pour une expérience plus stable sur mobile et web.
+googleProvider.setCustomParameters({
+    prompt: 'select_account'
+});
+googleProvider.addScope('email');

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import React, { useEffect, useState } from 'react';
+import { Mail, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { signInWithEmailAndPassword, getRedirectResult, signInWithPopup, signInWithRedirect } from 'firebase/auth';
 import { auth, googleProvider, db } from '../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
@@ -17,18 +17,56 @@ const LoginView: React.FC<LoginViewProps> = ({ onSignUp, onLogin, onForgotPasswo
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Centralise la création du profil Firestore pour les connexions Google.
+  const upsertGoogleUserDocument = async (user: any) => {
+    const userDocRef = doc(db, 'users', user.uid);
+    const userDoc = await getDoc(userDocRef);
+
+    if (!userDoc.exists()) {
+      const initials = (user.displayName || 'U')
+        .split(' ')
+        .filter(Boolean)
+        .map((n: string) => n[0])
+        .join('')
+        .toUpperCase()
+        .substring(0, 2);
+
+      await setDoc(userDocRef, {
+        uid: user.uid,
+        name: user.displayName || 'Utilisateur',
+        email: user.email,
+        phone: '',
+        initials,
+        rating: 5.0,
+        createdAt: new Date().toISOString(),
+        photoURL: user.photoURL || null,
+        isVerified: false,
+        balance: 0,
+        bio: '',
+        city: ''
+      }, { merge: true });
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent form submission refresh
-    console.log("Attempting login with:", email);
+    e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      const result = await signInWithEmailAndPassword(auth, email, password);
-      console.log("Login successful:", result.user.uid);
+      await signInWithEmailAndPassword(auth, email.trim(), password);
+      onLogin();
     } catch (err: any) {
-      console.error("Login error:", err);
-      setError('Échec de la connexion. Vérifiez vos identifiants.');
+      console.error('Login error:', err);
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+        setError("Email ou mot de passe incorrect.");
+      } else if (err.code === 'auth/invalid-email') {
+        setError("Adresse email invalide.");
+      } else if (err.code === 'auth/too-many-requests') {
+        setError("Trop de tentatives. Réessayez dans quelques minutes.");
+      } else {
+        setError('Échec de la connexion. Vérifiez vos identifiants.');
+      }
     } finally {
       setLoading(false);
     }
@@ -37,78 +75,87 @@ const LoginView: React.FC<LoginViewProps> = ({ onSignUp, onLogin, onForgotPasswo
   const handleGoogleLogin = async () => {
     setError('');
     setLoading(true);
+
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-
-      // Check if user exists in Firestore
-      const userDocRef = doc(db, 'users', user.uid);
-      const userDoc = await getDoc(userDocRef);
-
-      if (!userDoc.exists()) {
-        const initials = (user.displayName || 'U')
-          .split(' ')
-          .map(n => n[0])
-          .join('')
-          .toUpperCase()
-          .substring(0, 2);
-
-        await setDoc(userDocRef, {
-          uid: user.uid,
-          name: user.displayName || 'Utilisateur',
-          email: user.email,
-          phone: '',
-          initials: initials,
-          rating: 5.0,
-          createdAt: new Date().toISOString(),
-          photoURL: user.photoURL || null
-        });
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        await upsertGoogleUserDocument(result.user);
+        onLogin();
+      } catch (popupError: any) {
+        if (
+          popupError?.code === 'auth/popup-blocked' ||
+          popupError?.code === 'auth/popup-closed-by-user' ||
+          popupError?.code === 'auth/cancelled-popup-request'
+        ) {
+          await signInWithRedirect(auth, googleProvider);
+          return;
+        }
+        throw popupError;
       }
     } catch (err: any) {
-      console.error("Google Login error:", err);
+      console.error('Google Login error:', err);
       setError('Échec de la connexion avec Google.');
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    const finishRedirectGoogleLogin = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (!result?.user) return;
+        await upsertGoogleUserDocument(result.user);
+        onLogin();
+      } catch (err) {
+        console.error('Redirect Google login error:', err);
+        setError('Impossible de finaliser la connexion Google après redirection.');
+      }
+    };
+
+    finishRedirectGoogleLogin();
+  }, []);
+
   return (
-    <div className="bg-white min-h-screen px-6 py-12 flex flex-col">
-      {/* Logo / Espace haut */}
-      <div className="flex justify-center mb-16">
-        <div className="w-20 h-20 bg-[#1D1D4B] rounded-[24px] flex items-center justify-center shadow-xl shadow-indigo-900/20">
-          <span className="text-white font-black text-3xl">ZE</span>
+    <div className="relative bg-gradient-to-b from-[#F7F4EE] via-white to-[#FFFFFF] min-h-screen px-5 py-6 flex flex-col overflow-hidden">
+      <div className="absolute -top-20 -right-20 w-56 h-56 rounded-full bg-[#FF5722]/10 blur-3xl pointer-events-none" />
+      <div className="absolute top-40 -left-16 w-48 h-48 rounded-full bg-[#1D1D4B]/10 blur-3xl pointer-events-none" />
+
+      <div className="relative z-10 flex items-center justify-between mb-10">
+        <div className="w-12 h-12 rounded-2xl bg-[#1D1D4B] flex items-center justify-center shadow-lg">
+          <span className="text-white font-black text-xl">ZE</span>
+        </div>
+        <div className="flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 border border-gray-100 shadow-sm">
+          <ShieldCheck size={14} className="text-emerald-500" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#1D1D4B]">Connexion sécurisée</span>
         </div>
       </div>
 
-      {/* Titres */}
-      <div className="mb-12">
-        <h1 className="text-4xl font-extrabold text-[#1D1D4B] mb-3">Bon retour !</h1>
-        <p className="text-gray-400 text-sm font-medium leading-relaxed max-w-[280px]">
+      <div className="relative z-10 mb-8">
+        <h1 className="text-3xl font-black text-[#1D1D4B] mb-3 tracking-tight">Bon retour !</h1>
+        <p className="text-gray-500 text-sm font-medium leading-relaxed max-w-[300px]">
           Connectez-vous pour continuer à envoyer ou voyager.
         </p>
       </div>
 
-      {/* Formulaire */}
-      <form onSubmit={handleLogin} className="flex-1 space-y-6">
+      <form onSubmit={handleLogin} className="relative z-10 flex-1 space-y-6">
         {error && <div className="text-red-500 text-sm font-bold">{error}</div>}
 
-        {/* Email */}
         <div className="space-y-2">
           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">EMAIL</label>
           <div className="bg-gray-50 rounded-2xl px-5 py-4 flex items-center gap-4 focus-within:ring-2 focus-within:ring-[#1D1D4B]/5 transition-all">
             <Mail size={20} className="text-gray-400" />
             <input
-              type="text"
+              type="email"
               placeholder="votre@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="bg-transparent text-sm font-semibold text-gray-800 focus:outline-none w-full placeholder:text-gray-300"
+              autoComplete="email"
             />
           </div>
         </div>
 
-        {/* Mot de passe */}
         <div className="space-y-2">
           <div className="flex justify-between items-center px-1">
             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">MOT DE PASSE</label>
@@ -123,7 +170,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onSignUp, onLogin, onForgotPasswo
           <div className="bg-gray-50 rounded-2xl px-5 py-4 flex items-center gap-4 focus-within:ring-2 focus-within:ring-[#1D1D4B]/5 transition-all">
             <Lock size={20} className="text-gray-400" />
             <input
-              type={showPassword ? "text" : "password"}
+              type={showPassword ? 'text' : 'password'}
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -140,7 +187,6 @@ const LoginView: React.FC<LoginViewProps> = ({ onSignUp, onLogin, onForgotPasswo
           </div>
         </div>
 
-        {/* Actions bas - Moved inside form */}
         <div className="mt-12 space-y-6">
           <button
             type="submit"
@@ -152,9 +198,11 @@ const LoginView: React.FC<LoginViewProps> = ({ onSignUp, onLogin, onForgotPasswo
 
           <div className="relative flex items-center justify-center py-2">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-100"></div>
+              <div className="w-full border-t border-gray-100" />
             </div>
-            <span className="relative bg-white px-4 text-[10px] font-bold text-gray-300 uppercase tracking-widest">Ou continuer avec</span>
+            <span className="relative bg-white px-4 text-[10px] font-bold text-gray-300 uppercase tracking-widest">
+              Ou continuer avec
+            </span>
           </div>
 
           <button

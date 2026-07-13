@@ -1,5 +1,8 @@
 
 export enum View {
+  ONBOARDING_1 = 'onboarding_1',
+  ONBOARDING_2 = 'onboarding_2',
+  ONBOARDING_3 = 'onboarding_3',
   HOME = 'accueil',
   SEARCH = 'recherche',
   PUBLISH = 'publier',

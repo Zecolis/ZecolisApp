@@ -15,6 +15,7 @@ import QRCodeView from './components/QRCodeView';
 import FavoritesView from './components/FavoritesView';
 import PersonalInfoView from './components/PersonalInfoView';
 import PublicProfileView from './components/PublicProfileView';
+import OnboardingView from './components/OnboardingView';
 import RegistrationView from './components/RegistrationView';
 import LoginView from './components/LoginView';
 import ForgotPasswordView from './components/ForgotPasswordView';
@@ -22,9 +23,14 @@ import NotificationsView from './components/NotificationsView';
 import { auth, db } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, collection, query, where, getDocs, addDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
+import onboardingDiscoveryImage from './assets/onboarding-1.svg';
+import onboardingTrackingImage from './assets/onboarding-2.svg';
+import onboardingLoginImage from './assets/onboarding-3.svg';
+
+// 1) Nouveau flag versionné pour éviter qu'un ancien "seen" bloque l'affichage de l'onboarding.
 
 const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<View>(View.LOGIN); // Démarrer sur la connexion
+  const [currentView, setCurrentView] = useState<View>(View.ONBOARDING_1);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchCriteria, setSearchCriteria] = useState<SearchCriteria | null>(null);
@@ -38,6 +44,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      // 2) On relit le flag local pour décider si l'utilisateur non connecté doit voir l'onboarding ou la page d'auth.
       if (user) {
         // Fetch user data from Firestore
         const userDocRef = doc(db, 'users', user.uid);
@@ -56,13 +63,12 @@ const App: React.FC = () => {
           });
         }
 
-        // Redirect if currently on public auth pages
-        if (currentView === View.LOGIN || currentView === View.SIGNUP) {
-          setCurrentView(View.HOME);
-        }
+        // 3) Si une session existe, on sort immédiatement des écrans publics.
+        setCurrentView(View.HOME);
       } else {
         setCurrentUser(null);
-        setCurrentView(View.LOGIN);
+        // 4) Si personne n'est connecté, on force l'entrée dans l'onboarding tant qu'il n'a pas été validé.
+        setCurrentView(View.ONBOARDING_1);
       }
       setLoading(false);
     });
@@ -215,10 +221,15 @@ const App: React.FC = () => {
     try {
       await auth.signOut();
       setCurrentUser(null);
-      setCurrentView(View.LOGIN);
+      setCurrentView(View.ONBOARDING_1);
     } catch (error) {
       console.error("Error signing out: ", error);
     }
+  };
+
+  const completeOnboarding = () => {
+    // 5) La dernière étape renvoie vers l'authentification.
+    setCurrentView(View.LOGIN);
   };
 
   const handleOpenChat = (conversationId: string, partnerName: string, partnerAvatar: string) => {
@@ -246,6 +257,51 @@ const App: React.FC = () => {
 
   const renderView = () => {
     switch (currentView) {
+      case View.ONBOARDING_1:
+        return (
+          <OnboardingView
+            step={1}
+            title="Expédiez et voyagez en confiance"
+            subtitle="Découvrez une plateforme pensée pour des échanges simples, clairs et sécurisés."
+            image={onboardingDiscoveryImage}
+            badge="Découverte"
+            accent="#FF5722"
+            primaryActionLabel="Continuer"
+            secondaryActionLabel="Étape 1 sur 3"
+            onNext={() => setCurrentView(View.ONBOARDING_2)}
+            onSkip={completeOnboarding}
+          />
+        );
+      case View.ONBOARDING_2:
+        return (
+          <OnboardingView
+            step={2}
+            title="Suivi et vérification à chaque étape"
+            subtitle="Les colis, les profils et les échanges sont présentés avec plus de lisibilité et de contrôle."
+            image={onboardingTrackingImage}
+            badge="Sécurité"
+            accent="#1D1D4B"
+            primaryActionLabel="Continuer"
+            secondaryActionLabel="Étape 2 sur 3"
+            onNext={() => setCurrentView(View.ONBOARDING_3)}
+            onSkip={completeOnboarding}
+          />
+        );
+      case View.ONBOARDING_3:
+        return (
+          <OnboardingView
+            step={3}
+            title="Prêt à vous connecter ?"
+            subtitle="Vous arrivez maintenant sur la page de connexion pour accéder à votre compte."
+            image={onboardingLoginImage}
+            badge="Connexion"
+            accent="#FFB74D"
+            primaryActionLabel="Aller à la connexion"
+            secondaryActionLabel="Vous serez redirigé vers l'écran de connexion"
+            onNext={completeOnboarding}
+            onSkip={completeOnboarding}
+          />
+        );
       case View.LOGIN:
         return (
           <LoginView
@@ -385,7 +441,26 @@ const App: React.FC = () => {
     }
   };
 
-  const hiddenNavViews = [View.LOGIN, View.SIGNUP, View.FORGOT_PASSWORD, View.CHAT_DETAIL, View.DETAIL, View.PUBLISH, View.WALLET, View.VERIFY_INTRO, View.VERIFY_CHOICE, View.QR_CODE, View.MY_ADS, View.FAVORITES, View.PERSONAL_INFO, View.PUBLIC_PROFILE, View.NOTIFICATIONS];
+  const hiddenNavViews = [
+    View.LOGIN,
+    View.SIGNUP,
+    View.FORGOT_PASSWORD,
+    View.ONBOARDING_1,
+    View.ONBOARDING_2,
+    View.ONBOARDING_3,
+    View.CHAT_DETAIL,
+    View.DETAIL,
+    View.PUBLISH,
+    View.WALLET,
+    View.VERIFY_INTRO,
+    View.VERIFY_CHOICE,
+    View.QR_CODE,
+    View.MY_ADS,
+    View.FAVORITES,
+    View.PERSONAL_INFO,
+    View.PUBLIC_PROFILE,
+    View.NOTIFICATIONS
+  ];
   const showNav = !hiddenNavViews.includes(currentView);
 
   return (
