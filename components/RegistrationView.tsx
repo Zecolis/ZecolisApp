@@ -3,6 +3,7 @@ import { ArrowLeft, User, Mail, Phone, Lock, Eye, EyeOff, ShieldCheck, Sparkles,
 import { createUserWithEmailAndPassword, getRedirectResult, signInWithPopup, signInWithRedirect } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db, googleProvider } from '../firebase';
+import zecolisLogo from '../assets/zecolis_logo.png';
 
 interface RegistrationViewProps {
   onBack: () => void;
@@ -211,7 +212,10 @@ const RegistrationView: React.FC<RegistrationViewProps> = ({ onBack, onSignUp })
           <ArrowLeft size={22} className="text-[#1D1D4B]" />
         </button>
 
-        <div className="rounded-full border border-white/70 bg-white/85 px-3 py-1.5 shadow-[0_10px_30px_rgba(29,29,75,0.08)] backdrop-blur-md">
+        <div className="flex items-center gap-3 rounded-[18px] border border-white/70 bg-white/85 px-3 py-2 shadow-[0_10px_30px_rgba(29,29,75,0.08)] backdrop-blur-md">
+          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white ring-1 ring-black/5">
+            <img src={zecolisLogo} alt="ZE Colis" className="h-full w-full object-contain p-1" />
+          </div>
           <div className="flex items-center gap-2">
             <ShieldCheck size={14} className="text-emerald-500" />
             <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#1D1D4B]">Compte protégé</span>

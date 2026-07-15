@@ -3,6 +3,7 @@ import { Mail, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { signInWithEmailAndPassword, getRedirectResult, signInWithPopup, signInWithRedirect } from 'firebase/auth';
 import { auth, googleProvider, db } from '../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import zecolisLogo from '../assets/zecolis_logo.png';
 
 interface LoginViewProps {
   onSignUp: () => void;
@@ -122,8 +123,14 @@ const LoginView: React.FC<LoginViewProps> = ({ onSignUp, onLogin, onForgotPasswo
       <div className="absolute top-40 -left-16 w-48 h-48 rounded-full bg-[#1D1D4B]/10 blur-3xl pointer-events-none" />
 
       <div className="relative z-10 flex items-center justify-between mb-10">
-        <div className="w-12 h-12 rounded-2xl bg-[#1D1D4B] flex items-center justify-center shadow-lg">
-          <span className="text-white font-black text-xl">ZE</span>
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-[0_14px_34px_rgba(29,29,75,0.12)] ring-1 ring-black/5">
+            <img src={zecolisLogo} alt="ZE Colis" className="h-full w-full object-contain p-1" />
+          </div>
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#1D1D4B]/45">ZE Colis</p>
+            <p className="text-sm font-semibold text-[#1D1D4B]">Connexion</p>
+          </div>
         </div>
         <div className="flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 border border-gray-100 shadow-sm">
           <ShieldCheck size={14} className="text-emerald-500" />

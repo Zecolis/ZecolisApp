@@ -15,7 +15,10 @@ import QRCodeView from './components/QRCodeView';
 import FavoritesView from './components/FavoritesView';
 import PersonalInfoView from './components/PersonalInfoView';
 import PublicProfileView from './components/PublicProfileView';
-import OnboardingView from './components/OnboardingView';
+import Onboarding1 from './components/Onboarding1';
+import Onboarding2 from './components/Onboarding2';
+import Onboarding3 from './components/Onboarding3';
+import SplashScreen from './components/SplashScreen';
 import RegistrationView from './components/RegistrationView';
 import LoginView from './components/LoginView';
 import ForgotPasswordView from './components/ForgotPasswordView';
@@ -23,9 +26,6 @@ import NotificationsView from './components/NotificationsView';
 import { auth, db } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, collection, query, where, getDocs, addDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
-import onboardingDiscoveryImage from './assets/onboarding-1.svg';
-import onboardingTrackingImage from './assets/onboarding-2.svg';
-import onboardingLoginImage from './assets/onboarding-3.svg';
 
 // 1) Nouveau flag versionné pour éviter qu'un ancien "seen" bloque l'affichage de l'onboarding.
 
@@ -33,6 +33,7 @@ const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.ONBOARDING_1);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [splashVisible, setSplashVisible] = useState(true);
   const [searchCriteria, setSearchCriteria] = useState<SearchCriteria | null>(null);
   const [selectedAd, setSelectedAd] = useState<Ad | null>(null);
   const [editingAd, setEditingAd] = useState<Ad | null>(null);
@@ -76,6 +77,12 @@ const App: React.FC = () => {
     return () => unsubscribe();
   }, [auth]);
 
+  useEffect(() => {
+    // 1) Augmente la durée du splash screen à 5 secondes pour correspondre au design.
+    const timer = window.setTimeout(() => setSplashVisible(false), 5000);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   // Listen for global unread count
   useEffect(() => {
     if (!currentUser) return;
@@ -98,8 +105,8 @@ const App: React.FC = () => {
     return () => unsubscribe();
   }, [currentUser]);
 
-  if (loading) {
-    return <div className="flex items-center justify-center h-screen">Chargement...</div>;
+  if (loading || splashVisible) {
+    return <SplashScreen />;
   }
 
   const toggleFavorite = async (adId: string) => {
@@ -259,45 +266,21 @@ const App: React.FC = () => {
     switch (currentView) {
       case View.ONBOARDING_1:
         return (
-          <OnboardingView
-            step={1}
-            title="Expédiez et voyagez en confiance"
-            subtitle="Découvrez une plateforme pensée pour des échanges simples, clairs et sécurisés."
-            image={onboardingDiscoveryImage}
-            badge="Découverte"
-            accent="#FF5722"
-            primaryActionLabel="Continuer"
-            secondaryActionLabel="Étape 1 sur 3"
+          <Onboarding1
             onNext={() => setCurrentView(View.ONBOARDING_2)}
             onSkip={completeOnboarding}
           />
         );
       case View.ONBOARDING_2:
         return (
-          <OnboardingView
-            step={2}
-            title="Suivi et vérification à chaque étape"
-            subtitle="Les colis, les profils et les échanges sont présentés avec plus de lisibilité et de contrôle."
-            image={onboardingTrackingImage}
-            badge="Sécurité"
-            accent="#1D1D4B"
-            primaryActionLabel="Continuer"
-            secondaryActionLabel="Étape 2 sur 3"
+          <Onboarding2
             onNext={() => setCurrentView(View.ONBOARDING_3)}
             onSkip={completeOnboarding}
           />
         );
       case View.ONBOARDING_3:
         return (
-          <OnboardingView
-            step={3}
-            title="Prêt à vous connecter ?"
-            subtitle="Vous arrivez maintenant sur la page de connexion pour accéder à votre compte."
-            image={onboardingLoginImage}
-            badge="Connexion"
-            accent="#FFB74D"
-            primaryActionLabel="Aller à la connexion"
-            secondaryActionLabel="Vous serez redirigé vers l'écran de connexion"
+          <Onboarding3
             onNext={completeOnboarding}
             onSkip={completeOnboarding}
           />
