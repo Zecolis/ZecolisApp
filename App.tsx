@@ -308,6 +308,9 @@ const App: React.FC = () => {
             onSeeAllTransactions={() => setCurrentView(View.MY_ADS)}
             onSelectAd={handleSelectAd}
             onNotificationClick={() => setCurrentView(View.NOTIFICATIONS)}
+            onMessagesClick={() => setCurrentView(View.MESSAGES)}
+            onVerifyClick={() => setCurrentView(View.VERIFY_INTRO)}
+            unreadCount={unreadCount}
           />
         );
       case View.SEARCH:
@@ -419,6 +422,9 @@ const App: React.FC = () => {
             onSeeAllTransactions={() => setCurrentView(View.MY_ADS)}
             onSelectAd={handleSelectAd}
             onNotificationClick={() => setCurrentView(View.NOTIFICATIONS)}
+            onMessagesClick={() => setCurrentView(View.MESSAGES)}
+            onVerifyClick={() => setCurrentView(View.VERIFY_INTRO)}
+            unreadCount={unreadCount}
           />
         );
     }

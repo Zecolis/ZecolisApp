@@ -57,6 +57,8 @@ export interface Ad {
   userName: string;
   userInitials: string;
   userRating: number;
+  userPhotoURL?: string | null;
+  userVerified?: boolean;
   tripsCount: number;
   origin: string;
   destination: string;
@@ -64,6 +66,7 @@ export interface Ad {
   type: 'voyage' | 'colis';
   price?: number;
   weight?: string;
+  mediaURL?: string | null;
   description?: string;
   category?: string;
   views?: number;
