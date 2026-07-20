@@ -161,6 +161,24 @@ const SearchView: React.FC<SearchViewProps> = ({ initialCriteria, onSelectAd, on
             className="bg-white border text-left border-gray-100 rounded-2xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.08)] active:scale-[0.99] transition-all relative overflow-hidden cursor-pointer"
           >
             <div>
+              {ad.type === 'colis' ? (
+                <div className="mb-4 overflow-hidden rounded-2xl border border-green-50 bg-green-50">
+                  {ad.mediaURL ? (
+                    <img src={ad.mediaURL} alt={ad.category || ad.description || 'Colis'} className="h-36 w-full object-cover" />
+                  ) : (
+                    <div className="flex h-36 items-center justify-center bg-gradient-to-br from-green-50 to-white text-green-400">
+                      <Package size={36} />
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between px-3 py-2">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-green-500">Colis sécurisé</span>
+                    <span className="rounded-full bg-white px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-green-500 shadow-sm">
+                      Photo vérifiée
+                    </span>
+                  </div>
+                </div>
+              ) : null}
+
               <div className={`absolute top-0 right-0 px-3 py-1 rounded-bl-xl text-[9px] font-bold uppercase tracking-tight text-white ${ad.type === 'voyage' ? 'bg-[#FF5722]' : 'bg-[#22C55E]'}`}>
                 {ad.type}
               </div>

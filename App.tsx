@@ -24,7 +24,7 @@ import LoginView from './components/LoginView';
 import ForgotPasswordView from './components/ForgotPasswordView';
 import NotificationsView from './components/NotificationsView';
 import { auth, db } from './firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, collection, query, where, getDocs, addDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 
 // 1) Nouveau flag versionné pour éviter qu'un ancien "seen" bloque l'affichage de l'onboarding.
@@ -226,7 +226,7 @@ const App: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      await auth.signOut();
+      await signOut(auth);
       setCurrentUser(null);
       setCurrentView(View.ONBOARDING_1);
     } catch (error) {

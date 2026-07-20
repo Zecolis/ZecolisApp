@@ -20,6 +20,7 @@ import { Ad, User } from '../types';
 import { collection, query, orderBy, onSnapshot, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import headerHeroImage from '../assets/header.jpeg';
+import parcelCardImage from '../assets/carte 2.png';
 
 interface HomeViewProps {
   currentUser: User | null;
@@ -30,7 +31,6 @@ interface HomeViewProps {
   onSeeAllTransactions: () => void;
   onSelectAd: (ad: Ad) => void;
   onNotificationClick: () => void;
-  onMessagesClick?: () => void;
   onVerifyClick?: () => void;
   unreadCount?: number;
 }
@@ -70,8 +70,10 @@ const ActionCard: React.FC<{
 const RailCard: React.FC<{
   className?: string;
   onClick?: () => void;
+  visualUrl?: string;
+  visualLabel?: string;
   children: React.ReactNode;
-}> = ({ className = '', onClick, children }) => (
+}> = ({ className = '', onClick, visualUrl, visualLabel, children }) => (
   <div
     role="button"
     tabIndex={0}
@@ -82,10 +84,135 @@ const RailCard: React.FC<{
         onClick?.();
       }
     }}
-    className={`snap-start rounded-[24px] bg-white p-4 text-left shadow-[0_14px_36px_rgba(29,29,75,0.08)] ring-1 ring-black/5 active:scale-[0.99] ${className}`}
+    className={`snap-start overflow-hidden rounded-[24px] bg-white text-left shadow-[0_14px_36px_rgba(29,29,75,0.08)] ring-1 ring-black/5 active:scale-[0.99] ${className}`}
   >
+    {visualUrl ? (
+      <div className="relative h-28 overflow-hidden">
+        <img src={visualUrl} alt="" className="h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,42,91,0.06)_0%,rgba(11,42,91,0.44)_100%)]" />
+        <div className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-2">
+          {visualLabel ? (
+            <span className="rounded-full bg-white/92 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#0B2A5B] shadow-[0_8px_18px_rgba(0,0,0,0.12)] backdrop-blur-md">
+              {visualLabel}
+            </span>
+          ) : <span />}
+          <span className="rounded-full bg-[#FF6B00] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white shadow-[0_8px_18px_rgba(255,107,0,0.22)]">
+            Voir
+          </span>
+        </div>
+      </div>
+    ) : null}
+    <div className="p-4">
+      {children}
+    </div>
+  </div>
+);
+
+const ParcelHeroIllustration: React.FC = () => (
+  <div className="relative h-[110px] w-full overflow-hidden rounded-[22px] bg-[linear-gradient(180deg,#FFF6EC_0%,#FFF9F4_100%)]">
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,107,0,0.10),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(11,42,91,0.05),transparent_26%)]" />
+
+    <div className="absolute left-[12px] top-[12px] rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.22em] text-[#FF6B00] shadow-[0_10px_20px_rgba(0,0,0,0.08)] backdrop-blur-md">
+      Photo
+    </div>
+
+    <div className="absolute left-[14px] top-[40px] h-8 w-8 rounded-full bg-[#2BB673] text-white shadow-[0_14px_24px_rgba(43,182,115,0.28)]">
+      <div className="flex h-full w-full items-center justify-center">
+        <ShieldCheck size={18} className="fill-white" />
+      </div>
+    </div>
+
+    <div className="absolute right-[10px] bottom-[8px] h-[90px] w-[126px] overflow-hidden rounded-[18px] bg-white/55 shadow-[0_16px_32px_rgba(0,0,0,0.10)] ring-1 ring-white/80 backdrop-blur-[2px]">
+      <img
+        src={parcelCardImage}
+        alt="Colis sécurisé"
+        className="h-full w-full object-contain object-right-bottom"
+      />
+    </div>
+
+    <div className="absolute left-[14px] bottom-[10px] flex items-center gap-2 rounded-full bg-white/92 px-3 py-1.5 text-[9px] font-semibold text-[#0B2A5B] shadow-[0_10px_20px_rgba(0,0,0,0.08)] backdrop-blur-md">
+      <Lock size={11} className="text-[#FF6B00]" />
+      Suivi sécurisé
+    </div>
+  </div>
+);
+
+const HeroVisualFrame: React.FC<{
+  className?: string;
+  children: React.ReactNode;
+}> = ({ className = '', children }) => (
+  <div className={`relative flex h-[110px] w-full items-center justify-center overflow-hidden rounded-[22px] ${className}`}>
     {children}
   </div>
+);
+
+const ExchangeHeroIllustration: React.FC = () => (
+  <HeroVisualFrame className="bg-[linear-gradient(180deg,rgba(255,255,255,0.08)_0%,rgba(255,255,255,0.03)_100%)]">
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.12),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.06),transparent_30%)]" />
+
+    <div className="absolute left-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-[0_10px_20px_rgba(0,0,0,0.08)]">
+      <BadgeCheck size={15} className="text-[#22A55A]" />
+    </div>
+
+    <div className="absolute left-4 bottom-5 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white/90 ring-1 ring-white/10">
+      <span className="text-[10px] font-black uppercase">RB</span>
+    </div>
+
+    <div className="absolute left-[42px] top-[50px] h-px w-[44px] bg-white/30" />
+    <div className="absolute left-[82px] top-[50px] h-[1px] w-[22px] bg-white/25" />
+    <div className="absolute left-[56px] top-[44px] h-2 w-2 rounded-full bg-[#FF6B00] shadow-[0_0_0_4px_rgba(255,107,0,0.12)]" />
+
+    <div className="absolute right-5 bottom-4 h-20 w-[66px] rounded-[18px] bg-[#0B2A5B] shadow-[0_16px_28px_rgba(11,42,91,0.16)] ring-1 ring-white/12">
+      <div className="absolute inset-x-3 top-3 h-1.5 rounded-full bg-white/20" />
+      <div className="absolute left-1/2 top-7 h-8 w-8 -translate-x-1/2 rounded-full bg-white/95 text-[#0B2A5B] shadow-[0_8px_18px_rgba(0,0,0,0.12)]">
+        <div className="flex h-full w-full items-center justify-center">
+          <Lock size={16} />
+        </div>
+      </div>
+      <div className="absolute bottom-3 left-1/2 h-3 w-10 -translate-x-1/2 rounded-full bg-white/10" />
+    </div>
+
+    <div className="absolute right-[74px] top-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#0B2A5B]/10 text-[#0B2A5B] ring-1 ring-white/10">
+      <ShieldCheck size={18} />
+    </div>
+  </HeroVisualFrame>
+);
+
+const VerifiedHeroIllustration: React.FC<{ score: number }> = ({ score }) => (
+  <HeroVisualFrame className="bg-[linear-gradient(180deg,rgba(11,42,91,0.04)_0%,rgba(11,42,91,0.015)_100%)]">
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,165,90,0.14),transparent_36%),radial-gradient(circle_at_bottom_left,rgba(255,107,0,0.08),transparent_30%)]" />
+
+    <div className="absolute left-4 top-4 h-11 w-11 rounded-full border border-[#22A55A]/20 bg-white shadow-[0_14px_24px_rgba(11,42,91,0.08)]">
+      <div className="flex h-full w-full items-center justify-center text-[#22A55A]">
+        <BadgeCheck size={22} />
+      </div>
+    </div>
+
+    <div className="absolute left-[48px] top-[38px] h-14 w-14 rounded-full border-[6px] border-[#0B2A5B]/8 bg-transparent">
+      <div
+        className="absolute inset-0 rounded-full border-[6px] border-transparent border-t-[#FF6B00] border-r-[#FFB15A] border-b-[#22A55A] border-l-[#FF6B00] opacity-90"
+        style={{ transform: 'rotate(18deg)' }}
+      />
+      <div className="absolute inset-2 rounded-full bg-white shadow-[0_10px_20px_rgba(11,42,91,0.08)]">
+        <div className="flex h-full w-full items-center justify-center text-[#0B2A5B]">
+          <ShieldCheck size={18} />
+        </div>
+      </div>
+    </div>
+
+    <div className="absolute right-4 top-5 rounded-full bg-white/90 px-3 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-[#22A55A] shadow-[0_10px_20px_rgba(0,0,0,0.08)]">
+      Vérifié
+    </div>
+
+    <div className="absolute right-4 bottom-4 rounded-[18px] bg-[#0B2A5B] px-3 py-2 text-white shadow-[0_14px_26px_rgba(11,42,91,0.16)]">
+      <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/72">
+        Niveau
+      </div>
+      <div className="mt-0.5 text-[18px] font-black leading-none">
+        {score}%
+      </div>
+    </div>
+  </HeroVisualFrame>
 );
 
 // Hero du haut: fond décoratif, overlay lisible et cartes de confiance en glassmorphism léger.
@@ -124,10 +251,10 @@ const HomeHeroSection: React.FC<{
         backgroundRepeat: 'no-repeat'
       }}
     />
-    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.88)_0%,rgba(255,255,255,0.82)_100%)]" />
-    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,107,0,0.10),transparent_26%),radial-gradient(circle_at_bottom_left,rgba(11,42,91,0.08),transparent_28%)]" />
+    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.74)_0%,rgba(255,255,255,0.58)_100%)]" />
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,107,0,0.08),transparent_24%),radial-gradient(circle_at_bottom_left,rgba(11,42,91,0.06),transparent_30%)]" />
 
-    <div className="relative z-10 flex min-h-[340px] flex-col gap-4 px-4 pb-4 pt-4 sm:min-h-[360px] sm:px-5">
+    <div className="relative z-10 flex min-h-[198px] flex-col gap-2.5 px-4 pb-3 pt-3 sm:min-h-[212px] sm:px-5">
       {/* En-tête compact: avatar, nom, pays et actions rapides au-dessus du fond. */}
       <header className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
@@ -181,104 +308,156 @@ const HomeHeroSection: React.FC<{
         </div>
       </header>
 
-      {/* Carrousel automatique: cartes plus compactes et translucides, sans surcharger le hero. */}
-      <div className="flex-1">
-        <div className="overflow-hidden rounded-[28px]">
+      {/* Carrousel premium en 3 cartes: confiance, sécurité des échanges et colis sécurisés. */}
+      <div className="flex flex-1 justify-center">
+        <div className="w-full max-w-[100%] overflow-hidden rounded-[30px]">
           <div
-            className="flex w-[200%] transition-transform duration-500 ease-out"
-            style={{ transform: `translateX(-${bannerIndex * 50}%)` }}
+            className="flex w-[300%] transition-transform duration-500 ease-out"
+            style={{ transform: `translateX(-${bannerIndex * 33.333}%)` }}
           >
-            <div className="w-1/2 pr-2">
+            <div className="w-1/3 pr-2">
               <button
                 type="button"
-                onClick={onVerifyClick}
-                className="flex h-full w-full flex-col justify-between rounded-[26px] bg-white/92 p-4 text-left shadow-[0_16px_34px_rgba(11,42,91,0.10)] ring-1 ring-white/75 backdrop-blur-md active:scale-[0.99]"
+                className="relative flex h-[210px] w-full overflow-hidden rounded-[28px] bg-[linear-gradient(135deg,#132F6B_0%,#091F47_100%)] p-5 text-left shadow-[0_20px_44px_rgba(11,42,91,0.20)] ring-1 ring-white/10 active:scale-[0.99]"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="inline-flex items-center gap-2 rounded-full bg-[#EAF8EE] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#22A55A]">
-                      <BadgeCheck size={12} />
-                      Compte vérifié
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.08),transparent_30%),linear-gradient(135deg,rgba(11,42,91,0.96)_0%,rgba(11,42,91,0.84)_100%)]" />
+                <div className="absolute -right-10 top-0 h-28 w-28 rounded-full bg-white/10 blur-2xl" />
+                <div className="relative z-10 grid h-full w-full grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-4">
+                  <div className="flex min-w-0 flex-col justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/90 backdrop-blur-md">
+                        <Lock size={12} />
+                        Échanges protégés
+                      </div>
+                      <p className="mt-2 max-w-[15ch] text-[17px] font-black leading-[1.03] tracking-[-0.04em] text-white sm:text-[18px]">
+                        Protection active pour vos échanges
+                      </p>
+                      <p className="mt-2 max-w-[22ch] text-[11px] leading-relaxed text-white/72">
+                        Vos échanges sont chiffrés, sécurisés et surveillés en permanence.
+                      </p>
                     </div>
-                    <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.14em] text-[#0B2A5B]/46">
-                      Niveau de confiance
-                    </p>
-                    <p className="mt-1 text-[34px] font-black leading-none tracking-[-0.06em] text-[#0B2A5B]">
-                      {trustScore}%
-                    </p>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <span className="rounded-full bg-white/12 px-3 py-2 text-[10px] font-semibold text-white/92 backdrop-blur-md">
+                        Paiement sûr
+                      </span>
+                      <span className="rounded-full bg-white/12 px-3 py-2 text-[10px] font-semibold text-white/92 backdrop-blur-md">
+                        Données protégées
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex h-14 w-14 items-center justify-center rounded-[20px] bg-[linear-gradient(135deg,rgba(255,107,0,0.16)_0%,rgba(34,165,90,0.12)_100%)] text-[#22A55A] shadow-[0_12px_24px_rgba(11,42,91,0.08)]">
-                    <ShieldCheck size={24} />
+                  <div className="flex flex-col items-end justify-between">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#0B2A5B] shadow-[0_12px_24px_rgba(0,0,0,0.10)]">
+                      <ChevronRight size={16} />
+                    </div>
+                    <ExchangeHeroIllustration />
                   </div>
-                </div>
-
-                <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-[#0B2A5B]/8">
-                  <div
-                    className="h-full rounded-full bg-[linear-gradient(90deg,#FF6B00_0%,#FFB15A_45%,#22A55A_120%)]"
-                    style={{ width: `${trustScore}%` }}
-                  />
-                </div>
-
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {completedChecks.slice(0, 3).map((item) => (
-                    <span
-                      key={item.key}
-                      className="rounded-full bg-[#F5F8FC] px-3 py-1 text-[10px] font-semibold text-[#0B2A5B]/72"
-                    >
-                      {item.label}
-                    </span>
-                  ))}
-                  {!isFullyVerified ? (
-                    <span className="rounded-full bg-[#FFF1E7] px-3 py-1 text-[10px] font-semibold text-[#FF6B00]">
-                      À compléter
-                    </span>
-                  ) : null}
                 </div>
               </button>
             </div>
 
-            <div className="w-1/2 pl-2">
+            <div className="w-1/3 px-2">
               <button
                 type="button"
-                className="flex h-full w-full flex-col justify-between rounded-[26px] bg-[linear-gradient(135deg,rgba(11,42,91,0.98)_0%,rgba(11,42,91,0.90)_100%)] p-4 text-left shadow-[0_16px_34px_rgba(11,42,91,0.16)] ring-1 ring-white/10 backdrop-blur-md active:scale-[0.99]"
+                className="relative flex h-[210px] w-full overflow-hidden rounded-[28px] bg-[linear-gradient(135deg,#FFF3E5_0%,#FFF9F3_100%)] p-5 text-left shadow-[0_20px_44px_rgba(11,42,91,0.10)] ring-1 ring-white/80 active:scale-[0.99]"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/88">
-                      <Lock size={12} />
-                      Compte sécurisé
-                    </div>
-                    <p className="mt-3 max-w-[18ch] text-[16px] font-black leading-[1.02] tracking-[-0.03em] text-white">
-                      Protection active pour vos échanges
-                    </p>
-                  </div>
-
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#0B2A5B] shadow-[0_12px_24px_rgba(0,0,0,0.10)]">
-                    <ChevronRight size={16} />
-                  </div>
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,107,0,0.10),transparent_28%),linear-gradient(135deg,rgba(255,243,229,0.96)_0%,rgba(255,249,243,0.90)_100%)]" />
+                <div className="absolute -left-10 bottom-0 h-28 w-28 rounded-full bg-[#FF6B00]/10 blur-2xl" />
+                <div className="absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[9px] font-black uppercase tracking-[0.22em] text-[#FF6B00] shadow-[0_10px_20px_rgba(0,0,0,0.08)] backdrop-blur-md">
+                  Photo
                 </div>
 
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  <span className="rounded-full bg-white/10 px-3 py-2 text-[10px] font-semibold text-white/86">
-                    Paiement sûr
-                  </span>
-                  <span className="rounded-full bg-white/10 px-3 py-2 text-[10px] font-semibold text-white/86">
-                    Données protégées
-                  </span>
+                <div className="relative z-10 grid h-full w-full grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-4">
+                  <div className="flex min-w-0 flex-col justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="inline-flex items-center gap-2 rounded-full bg-[#FFF0E5] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#FF6B00]">
+                        <Package size={12} />
+                        Colis sécurisés
+                      </div>
+                      <p className="mt-2 max-w-[15ch] text-[17px] font-black leading-[1.02] tracking-[-0.04em] text-[#0B2A5B]">
+                        Vos colis restent suivis et protégés
+                      </p>
+                      <p className="mt-2 max-w-[24ch] text-[11px] leading-relaxed text-[#0B2A5B]/68">
+                        Chaque colis bénéficie d'un suivi en temps réel jusqu'à destination.
+                      </p>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <span className="rounded-full bg-white/92 px-3 py-1.5 text-[10px] font-semibold text-[#0B2A5B] shadow-[0_8px_20px_rgba(0,0,0,0.06)]">
+                        Emballage sûr
+                      </span>
+                      <span className="rounded-full bg-white/92 px-3 py-1.5 text-[10px] font-semibold text-[#0B2A5B] shadow-[0_8px_20px_rgba(0,0,0,0.06)]">
+                        Suivi précis
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-end justify-between">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0B2A5B] text-white shadow-[0_12px_24px_rgba(0,0,0,0.10)]">
+                      <ChevronRight size={16} />
+                    </div>
+                    <ParcelHeroIllustration />
+                  </div>
+                </div>
+              </button>
+            </div>
+
+            <div className="w-1/3 pl-2">
+              <button
+                type="button"
+                className="relative flex h-[210px] w-full overflow-hidden rounded-[28px] bg-[linear-gradient(180deg,#FFFFFF_0%,#FAFBFD_100%)] p-5 text-left shadow-[0_18px_36px_rgba(11,42,91,0.08)] ring-1 ring-white/80 active:scale-[0.99]"
+              >
+                <div className="absolute right-0 top-0 h-28 w-28 rounded-full bg-[#FF6B00]/8 blur-2xl" />
+                <div className="relative z-10 grid h-full w-full grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-4">
+                  <div className="flex min-w-0 flex-col justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="inline-flex items-center gap-2 rounded-full bg-[#EAF8EE] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#22A55A]">
+                        <BadgeCheck size={12} />
+                        Compte vérifié
+                      </div>
+                      <p className="mt-2 max-w-[14ch] text-[17px] font-black leading-[1.03] tracking-[-0.04em] text-[#0B2A5B]">
+                        Niveau de confiance
+                      </p>
+                      <p className="mt-2 max-w-[24ch] text-[11px] leading-relaxed text-[#0B2A5B]/68">
+                        Complétez votre profil pour renforcer votre crédibilité auprès de la communauté.
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="h-1.5 overflow-hidden rounded-full bg-[#0B2A5B]/8">
+                        <div
+                          className="h-full rounded-full bg-[linear-gradient(90deg,#FF6B00_0%,#FFB15A_45%,#22A55A_120%)]"
+                          style={{ width: `${trustScore}%` }}
+                        />
+                      </div>
+
+                      <div className="flex flex-wrap gap-1.5">
+                        <span className="rounded-full bg-[#F5F8FC] px-2.5 py-1 text-[10px] font-semibold text-[#0B2A5B]/72">
+                          Email
+                        </span>
+                        <span className="rounded-full bg-[#F5F8FC] px-2.5 py-1 text-[10px] font-semibold text-[#0B2A5B]/72">
+                          Téléphone
+                        </span>
+                        {!isFullyVerified ? (
+                          <span className="rounded-full bg-[#FFF1E7] px-2.5 py-1 text-[10px] font-semibold text-[#FF6B00]">
+                            À compléter
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-end justify-between">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#0B2A5B] shadow-[0_12px_24px_rgba(0,0,0,0.10)]">
+                      <ChevronRight size={16} />
+                    </div>
+                    <VerifiedHeroIllustration score={trustScore} />
+                  </div>
                 </div>
               </button>
             </div>
           </div>
-        </div>
-
-        <div className="mt-3 flex items-center justify-center gap-2">
-          {[0, 1].map((dot) => (
-            <span
-              key={dot}
-              className={`h-1.5 rounded-full transition-all duration-300 ${dot === bannerIndex ? 'w-7 bg-[#FF6B00]' : 'w-3 bg-[#0B2A5B]/12'}`}
-            />
-          ))}
         </div>
       </div>
     </div>
@@ -345,7 +524,7 @@ const HomeView: React.FC<HomeViewProps> = ({
         if (ad.status === 'COMPLETED') delivered++;
 
         if (ad.status !== 'COMPLETED' && ad.status !== 'EXPIRED') {
-          active.push({ id: doc.id, ...ad });
+          active.push({ ...ad, id: doc.id });
         }
       });
 
@@ -363,7 +542,7 @@ const HomeView: React.FC<HomeViewProps> = ({
   useEffect(() => {
     // Le carrousel du haut avance automatiquement pour éviter toute interaction manuelle.
     const timer = window.setInterval(() => {
-      setBannerIndex((value) => (value + 1) % 2);
+      setBannerIndex((value) => (value + 1) % 3);
     }, 4200);
 
     return () => window.clearInterval(timer);
@@ -435,184 +614,44 @@ const HomeView: React.FC<HomeViewProps> = ({
     );
   };
 
+  const heroVisuals = {
+    trip: 'https://images.pexels.com/photos/31387532/pexels-photo-31387532.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    parcel: 'https://images.pexels.com/photos/17631317/pexels-photo-17631317.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    secure: 'https://images.pexels.com/photos/9547672/pexels-photo-9547672.jpeg?auto=compress&cs=tinysrgb&w=1200'
+  } as const;
+
+  const getRailVisual = (ad: Ad, index: number, kind: 'transaction' | 'trip' | 'parcel') => {
+    if (ad.mediaURL) return ad.mediaURL;
+
+    if (kind === 'transaction') {
+      return ad.type === 'voyage'
+        ? heroVisuals.trip
+        : heroVisuals.parcel;
+    }
+
+    const visualPool = kind === 'trip'
+      ? [heroVisuals.trip, heroVisuals.secure, heroVisuals.trip]
+      : [heroVisuals.parcel, heroVisuals.secure, heroVisuals.parcel];
+
+    return visualPool[index % visualPool.length];
+  };
+
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(255,107,0,0.06),transparent_20%),radial-gradient(circle_at_top_right,_rgba(11,42,91,0.06),transparent_24%),linear-gradient(180deg,#FFFDFC_0%,#FAF7F2_100%)] pb-28">
       <div className="mx-auto max-w-[560px] px-5 pb-6 pt-5">
-        {/* Hero premium du haut: l'image reste décorative derrière les infos utiles. */}
-        <section className="relative overflow-hidden rounded-[34px] shadow-[0_22px_60px_rgba(11,42,91,0.10)] ring-1 ring-black/5">
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage: `url(${headerHeroImage})`,
-              backgroundPosition: 'center center',
-              backgroundRepeat: 'no-repeat'
-            }}
-          />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.88)_0%,rgba(255,255,255,0.82)_100%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,107,0,0.10),transparent_26%),radial-gradient(circle_at_bottom_left,rgba(11,42,91,0.08),transparent_28%)]" />
-          <div className="relative z-10 flex min-h-[340px] flex-col gap-4 px-4 pb-4 pt-4 sm:min-h-[360px] sm:px-5">
-        {/* Header premium inspiré de la référence: avatar, nom, pays et actions à droite. */}
-        <header className="flex items-center justify-between gap-4">
-          <div className="flex min-w-0 items-center gap-3">
-            <button
-              type="button"
-              onClick={onVerifyClick}
-            className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/95 shadow-[0_14px_30px_rgba(11,42,91,0.10)] ring-1 ring-white/70 backdrop-blur-md active:scale-95"
-            >
-              {currentUser?.photoURL ? (
-                <img src={currentUser.photoURL} alt={currentUser.name} className="h-full w-full object-cover" />
-              ) : (
-                <span className="text-base font-black text-[#0B2A5B]">{avatarInitials}</span>
-              )}
-            </button>
-
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5 text-[11px] font-medium text-[#0B2A5B]/56">
-                <span>Bonjour, 👋</span>
-                <span className="truncate font-semibold text-[#0B2A5B]">{firstName}</span>
-              </div>
-              <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
-                <p className="text-sm font-black tracking-[-0.02em] text-[#0B2A5B]">
-                  {currentUser?.name || 'Utilisateur'}
-                </p>
-                <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] ${isFullyVerified ? 'bg-[#EAF8EE] text-[#22A55A]' : 'bg-[#FFF3E6] text-[#FF6B00]'}`}>
-                  <span className={`h-1.5 w-1.5 rounded-full ${isFullyVerified ? 'bg-[#22A55A]' : 'bg-[#FF6B00]'}`} />
-                  {isFullyVerified ? 'Compte vérifié' : 'Compte à compléter'}
-                </span>
-              </div>
-              <p className="mt-1 flex items-center gap-2 text-xs font-medium text-[#0B2A5B]/58">
-                <span>🇫🇷 France</span>
-                <span className="text-[#0B2A5B]/28">↔</span>
-                <span>🇧🇯 Bénin</span>
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onMessagesClick}
-              className="relative flex h-11 w-11 items-center justify-center rounded-full bg-white/92 shadow-[0_14px_30px_rgba(11,42,91,0.10)] ring-1 ring-white/70 backdrop-blur-md active:scale-95"
-            >
-              <MessageSquare size={18} className="text-[#0B2A5B]" />
-            </button>
-            <button
-              type="button"
-              onClick={onNotificationClick}
-              className="relative flex h-11 w-11 items-center justify-center rounded-full bg-white/92 shadow-[0_14px_30px_rgba(11,42,91,0.10)] ring-1 ring-white/70 backdrop-blur-md active:scale-95"
-            >
-              <Bell size={18} className="text-[#0B2A5B]" />
-              {unreadCount > 0 ? (
-                <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FF6B00] px-1 text-[10px] font-bold text-white shadow-[0_10px_20px_rgba(255,107,0,0.32)]">
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              ) : null}
-            </button>
-          </div>
-        </header>
-
-        {/* Carousel des bannières en scroll horizontal, proche de la référence fournie. */}
-        <section className="mt-4">
-          <div className="overflow-hidden rounded-[26px]">
-            <div
-              className="flex w-[200%] transition-transform duration-500 ease-out"
-              style={{ transform: `translateX(-${bannerIndex * 50}%)` }}
-            >
-              <div className="w-1/2 pr-2">
-                <button
-                  type="button"
-                  onClick={onVerifyClick}
-                  className="w-full rounded-[22px] bg-white/92 p-3.5 text-left shadow-[0_12px_28px_rgba(11,42,91,0.08)] ring-1 ring-white/75 backdrop-blur-md active:scale-[0.99]"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex min-w-0 items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-[#FF6B00]/12 text-[#FF6B00]">
-                        <ShieldCheck size={20} />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-sm font-black text-[#0B2A5B]">Compte vérifié</span>
-                          <BadgeCheck size={13} className="text-[#22A55A]" />
-                        </div>
-                        <p className="mt-0.5 text-[11px] text-[#0B2A5B]/58">
-                          Niveau de confiance: {trustScore}%
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full border-[3px] border-[#FF6B00]/12 bg-white">
-                      <span className="text-[11px] font-black text-[#22A55A]">{trustScore}%</span>
-                    </div>
-                  </div>
-
-                  <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-[#0B2A5B]/8">
-                    <div
-                      className="h-full rounded-full bg-[linear-gradient(90deg,#FF6B00_0%,#FFB15A_45%,#22A55A_120%)]"
-                      style={{ width: `${trustScore}%` }}
-                    />
-                  </div>
-
-                  <div className="mt-2.5 flex flex-wrap gap-1.5">
-                    {completedChecks.map((item) => (
-                      <span
-                        key={item.key}
-                        className="rounded-full bg-[#EAF8EE] px-2.5 py-1 text-[10px] font-semibold text-[#22A55A]"
-                      >
-                        {item.label}
-                      </span>
-                    ))}
-                    {!isFullyVerified ? (
-                      <span className="rounded-full bg-[#FFF0E5] px-2.5 py-1 text-[10px] font-semibold text-[#FF6B00]">
-                        À compléter
-                      </span>
-                    ) : null}
-                  </div>
-                </button>
-              </div>
-
-              <div className="w-1/2 pl-2">
-                <button
-                  type="button"
-                  className="w-full rounded-[22px] bg-[linear-gradient(135deg,rgba(11,42,91,0.98)_0%,rgba(11,42,91,0.90)_100%)] p-3.5 text-left shadow-[0_12px_28px_rgba(11,42,91,0.14)] ring-1 ring-white/10 backdrop-blur-md active:scale-[0.99]"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex min-w-0 items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-white/10 text-white">
-                        <Lock size={18} />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-black text-white">Compte sécurisé</p>
-                        <p className="mt-0.5 text-[11px] text-white/70">
-                          Protection active des échanges
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-[#0B2A5B]">
-                      <ChevronRight size={15} />
-                    </div>
-                  </div>
-
-                  <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-white/72">
-                    <span className="rounded-full bg-white/10 px-2 py-1">Paiement sûr</span>
-                    <span className="rounded-full bg-white/10 px-2 py-1">Données protégées</span>
-                  </div>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-2.5 flex items-center justify-center gap-2">
-            {[0, 1].map((dot) => (
-              <span
-                key={dot}
-                className={`h-1.5 rounded-full transition-all duration-300 ${dot === bannerIndex ? 'w-7 bg-[#FF6B00]' : 'w-3 bg-[#0B2A5B]/12'}`}
-              />
-            ))}
-          </div>
-        </section>
-
-          </div>
-        </section>
+        <HomeHeroSection
+          currentUser={currentUser}
+          avatarInitials={avatarInitials}
+          firstName={firstName}
+          onVerifyClick={onVerifyClick}
+          onMessagesClick={onMessagesClick}
+          onNotificationClick={onNotificationClick}
+          unreadCount={unreadCount}
+          bannerIndex={bannerIndex}
+          trustScore={trustScore}
+          isFullyVerified={isFullyVerified}
+          completedChecks={completedChecks}
+        />
 
         {/* Actions principales en 2 cartes, proches de la maquette de référence. */}
         <section className="mt-4 grid grid-cols-2 gap-3">
@@ -675,10 +714,12 @@ const HomeView: React.FC<HomeViewProps> = ({
           </div>
 
           <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar snap-x snap-mandatory">
-            {(activeAds.length > 0 ? activeAds : ads.filter((ad) => ad.status !== 'EXPIRED').slice(0, 4)).map((ad) => (
+            {(activeAds.length > 0 ? activeAds : ads.filter((ad) => ad.status !== 'EXPIRED').slice(0, 4)).map((ad, index) => (
               <RailCard
                 key={ad.id}
-                className="min-w-[232px]"
+                className="min-w-[248px]"
+                visualUrl={getRailVisual(ad, index, 'transaction')}
+                visualLabel={ad.type === 'voyage' ? 'Voyage' : 'Colis'}
                 onClick={() => onSelectAd(ad)}
               >
                 <div className="flex items-center justify-between gap-2">
@@ -743,7 +784,7 @@ const HomeView: React.FC<HomeViewProps> = ({
               return (
                 <RailCard
                   key={ad.id}
-                  className="min-w-[246px]"
+                  className="min-w-[256px]"
                   onClick={() => onSelectAd(ad)}
                 >
                   <div className="flex items-start gap-3">
@@ -828,18 +869,20 @@ const HomeView: React.FC<HomeViewProps> = ({
               <div className="rounded-[24px] bg-white px-4 py-6 text-sm font-medium text-[#0B2A5B]/45 shadow-[0_14px_36px_rgba(29,29,75,0.08)]">
                 Aucun colis disponible pour le moment.
               </div>
-            ) : availableParcels.map((ad) => (
+            ) : availableParcels.map((ad, index) => (
               <RailCard
                 key={ad.id}
-                className="min-w-[232px]"
+                className="min-w-[256px]"
+                visualUrl={getRailVisual(ad, index, 'parcel')}
+                visualLabel="Colis"
                 onClick={() => onSelectAd(ad)}
               >
                 <div className="flex items-start gap-3">
-                  <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#FFF2E6_0%,#F8FAFF_100%)] ring-1 ring-black/5">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#FFF2E6_0%,#F8FAFF_100%)] ring-1 ring-black/5">
                     {ad.mediaURL ? (
-                      <img src={ad.mediaURL} alt={ad.userName} className="h-full w-full object-cover" />
+                      <img src={ad.mediaURL} alt={ad.userName} className="h-full w-full rounded-2xl object-cover" />
                     ) : (
-                      <Package size={28} className="text-[#FF6B00]" />
+                      <Package size={24} className="text-[#FF6B00]" />
                     )}
                   </div>
 

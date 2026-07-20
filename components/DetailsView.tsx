@@ -75,6 +75,27 @@ const DetailsView: React.FC<DetailsViewProps> = ({ ad, onBack, isFavorite, toggl
           </div>
         </div>
 
+        {ad.type === 'colis' ? (
+          <div className="overflow-hidden rounded-[28px] border border-gray-100 bg-white shadow-[0_10px_32px_rgba(0,0,0,0.08)]">
+            {ad.mediaURL ? (
+              <img src={ad.mediaURL} alt={ad.category || ad.description || 'Colis'} className="h-64 w-full object-cover" />
+            ) : (
+              <div className="flex h-64 items-center justify-center bg-gradient-to-br from-green-50 via-white to-green-100 text-green-400">
+                <Package size={56} />
+              </div>
+            )}
+            <div className="flex items-center justify-between px-4 py-3">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-green-500">Photo du colis</p>
+                <p className="mt-1 text-sm font-bold text-black">Aperçu associé à l’annonce</p>
+              </div>
+              <div className="rounded-full bg-green-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-green-500">
+                Sécurisé
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
           <div className="flex items-center justify-between mb-6">
             <div className="flex flex-col items-center">

@@ -94,6 +94,7 @@ const PublishView: React.FC<PublishViewProps> = ({ currentUser, initialType = 'c
   const [category, setCategory] = useState('HABITS');
   const [customCategory, setCustomCategory] = useState('');
   const [details, setDetails] = useState('');
+  const [parcelImage, setParcelImage] = useState('');
   const [loading, setLoading] = useState(false);
 
   // Pré-remplir les données en mode édition
@@ -105,6 +106,7 @@ const PublishView: React.FC<PublishViewProps> = ({ currentUser, initialType = 'c
       setDetails(editingAd.description || '');
       setWeight(parseInt(editingAd.weight?.split(' ')[0] || '10'));
       setPricePerKg(editingAd.price || 12);
+      setParcelImage(editingAd.mediaURL || '');
       if (editingAd.category) {
         const knownCat = ['HABITS', 'TECH', 'BOUFFE'].includes(editingAd.category);
         if (knownCat) {
@@ -117,19 +119,16 @@ const PublishView: React.FC<PublishViewProps> = ({ currentUser, initialType = 'c
     }
   }, [editingAd]);
 
-  const handlePublish = async () => {
-    // Si c'est un colis, on redirige vers la recherche de voyageur
-    if (type === 'colis') {
-      onFindTraveler({
-        origin,
-        destination,
-        date: departureDate,
-        weight: weight.toString(),
-        category: category === 'AUTRE' ? customCategory : category
-      });
-      return;
-    }
+  const handleParcelImageChange = (file?: File) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setParcelImage(typeof reader.result === 'string' ? reader.result : '');
+    };
+    reader.readAsDataURL(file);
+  };
 
+  const handlePublish = async () => {
     if (!currentUser) return;
     setLoading(true);
 
@@ -147,6 +146,7 @@ const PublishView: React.FC<PublishViewProps> = ({ currentUser, initialType = 'c
         price: pricePerKg,
         description: details,
         category: category === 'AUTRE' ? customCategory : category,
+        mediaURL: type === 'colis' ? parcelImage || null : editingAd?.mediaURL || null,
         createdAt: serverTimestamp(),
         views: 0,
         likes: [],
@@ -159,6 +159,18 @@ const PublishView: React.FC<PublishViewProps> = ({ currentUser, initialType = 'c
       } else {
         await addDoc(collection(db, 'ads'), adData);
       }
+
+      if (type === 'colis') {
+        onFindTraveler({
+          origin,
+          destination,
+          date: departureDate,
+          weight: weight.toString(),
+          category: category === 'AUTRE' ? customCategory : category
+        });
+        return;
+      }
+
       onBack();
     } catch (e) {
       console.error("Error publishing ad: ", e);
@@ -271,6 +283,53 @@ const PublishView: React.FC<PublishViewProps> = ({ currentUser, initialType = 'c
             className="w-full bg-gray-50 rounded-lg p-3.5 text-sm font-semibold text-black focus:outline-none min-h-[100px] resize-none focus:ring-2 focus:ring-[#1D1D4B]/10"
           ></textarea>
         </div>
+      </section>
+
+      <section className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+        <h3 className="text-sm font-extrabold text-black flex items-center gap-2 mb-4">
+          <Package size={18} className="text-black" /> Photo du colis
+        </h3>
+        {parcelImage ? (
+          <div className="space-y-3">
+            <div className="relative overflow-hidden rounded-2xl border border-gray-100">
+              <img src={parcelImage} alt="Aperçu du colis" className="h-52 w-full object-cover" />
+              <button
+                type="button"
+                onClick={() => setParcelImage('')}
+                className="absolute right-3 top-3 rounded-full bg-black/60 px-3 py-1 text-[10px] font-bold text-white backdrop-blur-md"
+              >
+                Supprimer
+              </button>
+            </div>
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 text-xs font-bold text-[#1D1D4B]">
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => handleParcelImageChange(e.target.files?.[0])}
+              />
+              Changer la photo
+            </label>
+          </div>
+        ) : (
+          <label className="flex min-h-[170px] cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center">
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleParcelImageChange(e.target.files?.[0])}
+            />
+            <div className="rounded-full bg-white p-4 text-[#1D1D4B] shadow-sm">
+              <Package size={24} />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-black">Ajouter une photo du colis</p>
+              <p className="mt-1 text-xs font-medium text-gray-400">
+                L’image sera associée à l’annonce et visible sur les cartes.
+              </p>
+            </div>
+          </label>
+        )}
       </section>
 
       <button onClick={handlePublish} className="w-full py-4 bg-[#22C55E] text-white rounded-xl font-bold text-sm shadow-md active:scale-95 transition-transform mb-6">
