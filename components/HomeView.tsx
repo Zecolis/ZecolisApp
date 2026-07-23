@@ -46,21 +46,21 @@ const ActionCard: React.FC<{
   <button
     type="button"
     onClick={onClick}
-    className={`group relative overflow-hidden rounded-[28px] p-5 text-left shadow-[0_18px_40px_rgba(29,29,75,0.12)] active:scale-[0.99] ${className}`}
+    className={`group relative h-[138px] overflow-hidden rounded-[26px] p-4 text-left shadow-[0_14px_32px_rgba(29,29,75,0.10)] ring-1 ring-black/5 active:scale-[0.99] ${className}`}
   >
-    <div className="absolute right-0 top-0 h-24 w-24 translate-x-1/3 -translate-y-1/3 rounded-full bg-white/10 blur-2xl" />
-    <div className="flex items-start justify-between gap-4">
-      <div className="space-y-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/14 text-white shadow-[0_10px_30px_rgba(0,0,0,0.08)]">
+    <div className="absolute -right-4 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+    <div className="relative z-10 flex h-full flex-col justify-between">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/14 text-white shadow-[0_10px_24px_rgba(0,0,0,0.08)] ring-1 ring-white/12">
           {icon}
         </div>
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/78">{title}</p>
-          <p className="mt-2 max-w-[13ch] text-xl font-black leading-[1.02] text-white">{subtitle}</p>
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-[#0B2A5B] shadow-[0_10px_22px_rgba(0,0,0,0.10)] transition-transform group-active:scale-95">
+          <ArrowRight size={18} />
         </div>
       </div>
-      <div className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-[#1D1D4B] shadow-[0_10px_30px_rgba(0,0,0,0.12)] transition-transform group-active:scale-95">
-        <ArrowRight size={18} />
+      <div className="pb-0.5">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/78">{title}</p>
+        <p className="mt-2 max-w-[10ch] text-[22px] font-black leading-[0.98] tracking-[-0.05em] text-white">{subtitle}</p>
       </div>
     </div>
   </button>
@@ -72,8 +72,9 @@ const RailCard: React.FC<{
   onClick?: () => void;
   visualUrl?: string;
   visualLabel?: string;
+  statusLabel?: string;
   children: React.ReactNode;
-}> = ({ className = '', onClick, visualUrl, visualLabel, children }) => (
+}> = ({ className = '', onClick, visualUrl, visualLabel, statusLabel, children }) => (
   <div
     role="button"
     tabIndex={0}
@@ -89,16 +90,22 @@ const RailCard: React.FC<{
     {visualUrl ? (
       <div className="relative h-28 overflow-hidden">
         <img src={visualUrl} alt="" className="h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,42,91,0.06)_0%,rgba(11,42,91,0.44)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,42,91,0.04)_0%,rgba(11,42,91,0.40)_100%)]" />
         <div className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-2">
           {visualLabel ? (
             <span className="rounded-full bg-white/92 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#0B2A5B] shadow-[0_8px_18px_rgba(0,0,0,0.12)] backdrop-blur-md">
               {visualLabel}
             </span>
           ) : <span />}
-          <span className="rounded-full bg-[#FF6B00] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white shadow-[0_8px_18px_rgba(255,107,0,0.22)]">
-            Voir
-          </span>
+          {statusLabel ? (
+            <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] ${statusLabel === 'En cours' ? 'bg-[#EEF4FF] text-[#0B2A5B]' : statusLabel === 'Complété' ? 'bg-[#EAF8EE] text-[#22A55A]' : 'bg-[#FFF1E7] text-[#FF6B00]'}`}>
+              {statusLabel}
+            </span>
+          ) : (
+            <span className="rounded-full bg-[#FF6B00] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white shadow-[0_8px_18px_rgba(255,107,0,0.22)]">
+              Voir
+            </span>
+          )}
         </div>
       </div>
     ) : null}
@@ -107,6 +114,52 @@ const RailCard: React.FC<{
     </div>
   </div>
 );
+
+const StatCard: React.FC<{
+  icon: React.ReactNode;
+  value: number;
+  label: string;
+  accentClassName: string;
+  toneClassName: string;
+  footerLabel: string;
+  progress: number;
+}> = ({ icon, value, label, accentClassName, toneClassName, footerLabel, progress }) => (
+  <div className="rounded-[22px] bg-white p-4 shadow-[0_12px_30px_rgba(29,29,75,0.08)] ring-1 ring-black/5">
+    <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${accentClassName}`}>
+      {icon}
+    </div>
+    <div className="mt-3 flex items-end justify-between gap-3">
+      <div>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#0B2A5B]/52">{label}</p>
+        <p className="mt-1 text-[30px] font-black leading-none tracking-[-0.06em] text-[#0B2A5B]">{value}</p>
+      </div>
+      <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${toneClassName}`}>
+        {footerLabel}
+      </span>
+    </div>
+    <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-[#0B2A5B]/8">
+      <div
+        className="h-full rounded-full bg-[linear-gradient(90deg,#FF6B00_0%,#FFB15A_45%,#22A55A_120%)]"
+        style={{ width: `${Math.min(100, Math.max(12, progress))}%` }}
+      />
+    </div>
+  </div>
+);
+
+const StatusPill: React.FC<{ status: string }> = ({ status }) => {
+  const tone =
+    status === 'En cours'
+      ? 'bg-[#EEF4FF] text-[#0B2A5B]'
+      : status === 'Complété'
+        ? 'bg-[#EAF8EE] text-[#22A55A]'
+        : 'bg-[#FFF1E7] text-[#FF6B00]';
+
+  return (
+    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] ${tone}`}>
+      {status}
+    </span>
+  );
+};
 
 const ParcelHeroIllustration: React.FC = () => (
   <div className="relative h-[110px] w-full overflow-hidden rounded-[22px] bg-[linear-gradient(180deg,#FFF6EC_0%,#FFF9F4_100%)]">
@@ -656,16 +709,16 @@ const HomeView: React.FC<HomeViewProps> = ({
         {/* Actions principales en 2 cartes, proches de la maquette de référence. */}
         <section className="mt-4 grid grid-cols-2 gap-3">
           <ActionCard
-            title="Envoyer"
+            title="Créer"
             subtitle="un colis"
-            icon={<Package size={24} />}
+            icon={<Package size={22} />}
             className="bg-[linear-gradient(135deg,#FF8A19_0%,#FF6B00_100%)]"
             onClick={onParcelClick}
           />
           <ActionCard
-            title="Proposer"
+            title="Publier"
             subtitle="un voyage"
-            icon={<Plane size={24} className="rotate-45" />}
+            icon={<Plane size={22} className="rotate-45" />}
             className="bg-[linear-gradient(135deg,#122B62_0%,#0B2A5B_100%)]"
             onClick={onTripClick}
           />
@@ -673,20 +726,40 @@ const HomeView: React.FC<HomeViewProps> = ({
 
         {/* Résumé rapide des volumes pour garder un lien direct avec les données réelles. */}
         <section className="mt-4 grid grid-cols-3 gap-2.5">
-          <div className="rounded-[18px] bg-white px-3 py-3 text-center shadow-[0_10px_24px_rgba(29,29,75,0.07)] ring-1 ring-black/5">
-            <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-2xl bg-[#EAF8EE] text-[#22A55A]">
+          <div className="rounded-[22px] bg-white p-4 text-left shadow-[0_12px_30px_rgba(29,29,75,0.08)] ring-1 ring-black/5">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#EAF2FF] text-[#0B2A5B]">
               <Plane size={16} />
             </div>
-            <p className="mt-2 text-lg font-black text-[#0B2A5B]">{userStats.trips}</p>
-            <p className="text-[10px] font-semibold text-[#0B2A5B]/54">Voyages</p>
+            <div className="mt-3 flex items-end justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#0B2A5B]/52">Voyages</p>
+                <p className="mt-1 text-[30px] font-black leading-none tracking-[-0.06em] text-[#0B2A5B]">{userStats.trips}</p>
+              </div>
+              <span className="rounded-full bg-[#EEF4FF] px-2.5 py-1 text-[10px] font-semibold text-[#0B2A5B]">
+                {userStats.trips > 0 ? 'Actif' : 'Vide'}
+              </span>
+            </div>
+            <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-[#0B2A5B]/8">
+              <div className="h-full rounded-full bg-[linear-gradient(90deg,#0B2A5B_0%,#4B77FF_100%)]" style={{ width: `${Math.min(100, userStats.trips * 18)}%` }} />
+            </div>
           </div>
 
-          <div className="rounded-[18px] bg-white px-3 py-3 text-center shadow-[0_10px_24px_rgba(29,29,75,0.07)] ring-1 ring-black/5">
-            <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-2xl bg-[#FFF0E5] text-[#FF6B00]">
+          <div className="rounded-[22px] bg-white p-4 text-left shadow-[0_12px_30px_rgba(29,29,75,0.08)] ring-1 ring-black/5">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FFF1E7] text-[#FF6B00]">
               <Package size={16} />
             </div>
-            <p className="mt-2 text-lg font-black text-[#0B2A5B]">{userStats.parcels}</p>
-            <p className="text-[10px] font-semibold text-[#0B2A5B]/54">Colis</p>
+            <div className="mt-3 flex items-end justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#0B2A5B]/52">Colis</p>
+                <p className="mt-1 text-[30px] font-black leading-none tracking-[-0.06em] text-[#0B2A5B]">{userStats.parcels}</p>
+              </div>
+              <span className="rounded-full bg-[#FFF1E7] px-2.5 py-1 text-[10px] font-semibold text-[#FF6B00]">
+                {userStats.parcels > 0 ? 'En cours' : 'Vide'}
+              </span>
+            </div>
+            <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-[#0B2A5B]/8">
+              <div className="h-full rounded-full bg-[linear-gradient(90deg,#FF6B00_0%,#FFB15A_100%)]" style={{ width: `${Math.min(100, userStats.parcels * 18)}%` }} />
+            </div>
           </div>
 
           <div className="rounded-[18px] bg-white px-3 py-3 text-center shadow-[0_10px_24px_rgba(29,29,75,0.07)] ring-1 ring-black/5">
